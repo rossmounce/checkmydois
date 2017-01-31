@@ -1,7 +1,7 @@
 #install.packages("rorcid")
 #install.packages("dplyr")
 #install.packages("httr")
-#setwd("/home/ross/Documents/test")
+#setwd("/home/ross/workspace/checkmydois")
 library(rorcid)
 library(dplyr)
 library(httr)
@@ -18,19 +18,20 @@ ids <- dplyr::bind_rows(Filter(
 ))
 doisonly <- ids[ids$`work-external-identifier-type` == "DOI", ]
 doisonly$`work-external-identifier-id.value` <- gsub("^","http://doi.org/",doisonly$`work-external-identifier-id.value`)
-
+uniquedois <- unique(doisonly$`work-external-identifier-id.value`)
+uniquedois
 #Write out a list of DOIs for all your ORCID registered works
-write.table(doisonly$`work-external-identifier-id.value`,file="mydois.txt",row.names=F,col.names=F,quote=F)
+write.table(uniquedois,file="mydois.txt",row.names=F,col.names=F,quote=F)
 
 #loop through your DOIs to check the HTTP status message with a simple for loop
 #a better R coder probably wouldn't use a for loop here...
 rm(vec)
-vec <- vector("list",length(doisonly$`work-external-identifier-id.value`))
-for (doi in (seq(1,length(doisonly$`work-external-identifier-id.value`)))){
-  vec[doi] <- http_status(GET(doisonly$`work-external-identifier-id.value`[doi]))$message
+vec <- vector("list",length(uniquedois))
+for (doi in (seq(1,length(uniquedois)))){
+  vec[doi] <- http_status(GET(uniquedois[doi]))$message
 }
 #save the HTTP status messages for all your works with DOIs
-table <- data.frame(matrix(unlist(vec)),doisonly$`work-external-identifier-id.value`)
+table <- data.frame(matrix(unlist(vec)),uniquedois)
 table
 names(table)[1] <- "HTTP.Status"
 names(table)[2] <- "DOI"
