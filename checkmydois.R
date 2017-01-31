@@ -31,7 +31,7 @@ write.table(uniquedois,file="mydois.txt",row.names=F,col.names=F,quote=F)
 #rm(vec)
 vec <- vector("list",length(uniquedois))
 for (doi in (seq(1,length(uniquedois)))){
-  vec[doi] <- http_status(GET(uniquedois[doi], user_agent("Mozilla/5.0")))$message
+  vec[doi] <- http_status(GET(uniquedois[doi], user_agent("Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.0; Trident/5.0; Trident/5.0)")))$message
 }
 #save the HTTP status messages for all your works with DOIs
 table <- data.frame(matrix(unlist(vec)),uniquedois)
