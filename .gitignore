@@ -1,0 +1,19 @@
+#Ignore backup files from some Unix editors,
+*~
+*.swp
+*.bak
+
+#Ignore patches and any original files created by patch command
+*.diff
+*.patch
+*.orig
+*.rej
+
+#Ignore these hidden files from Mac OS X
+.DS_Store
+
+#The script will output a report file:
+mydois.txt
+
+#The script will output date-stamped report files:
+*.csv
