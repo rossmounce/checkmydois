@@ -21,4 +21,6 @@ Thanks to Scott Chamberlain for helping me get the output I wanted from `rorcid`
 ##Scheduling this as a cron job 
 
 I have this script setup so it runs daily on my machine at 5.15am local time 
-`15 5 * * * Rscript /path/to/file/checkmydois.R`
+```
+15 5 * * * Rscript /path/to/file/checkmydois.R
+```
