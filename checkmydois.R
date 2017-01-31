@@ -28,7 +28,7 @@ write.table(uniquedois,file="mydois.txt",row.names=F,col.names=F,quote=F)
 
 #loop through your DOIs to check the HTTP status message with a simple for loop
 #a better R coder probably wouldn't use a for loop here...
-rm(vec)
+#rm(vec)
 vec <- vector("list",length(uniquedois))
 for (doi in (seq(1,length(uniquedois)))){
   vec[doi] <- http_status(GET(uniquedois[doi]))$message
