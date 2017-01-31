@@ -1,0 +1,6 @@
+# TravisCI configuration file, see
+# https://docs.travis-ci.com/user/languages/r/
+language: r
+cache: packages
+sudo: false
+script: "Rscript checkmydois.R"

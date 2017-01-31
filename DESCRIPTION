@@ -1,0 +1,17 @@
+Package: checkmydois
+Title: Verify your public research outpus are available by DOI
+Version: 0.1
+Authors@R: person("Ross", "Mounce", email = "ross.mounce@gmail.com",
+                  role = c("aut", "cre"))
+Description:
+  R code to check that the DOIs of your own authored research
+  outputs (not just articles!) aren't 404'ing. This leverages
+  your ORCID profile and your list of public works. (Public
+  works only)
+Depends: R (>= 3.1.0)
+License: MIT
+Imports:
+  httr,
+  dplyr,
+  rorcid
+LazyData: true
