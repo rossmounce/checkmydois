@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 #install.packages("rorcid")
 #install.packages("dplyr")
 #install.packages("httr")
