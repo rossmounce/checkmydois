@@ -18,6 +18,7 @@ ids <- dplyr::bind_rows(Filter(
 ))
 doisonly <- ids[ids$`work-external-identifier-type` == "DOI", ]
 doisonly$`work-external-identifier-id.value` <- gsub("^","http://doi.org/",doisonly$`work-external-identifier-id.value`)
+doisonly$`work-external-identifier-id.value` <- gsub("DOI: ","",doisonly$`work-external-identifier-id.value`)
 uniquedois <- unique(doisonly$`work-external-identifier-id.value`)
 uniquedois
 #Write out a list of DOIs for all your ORCID registered works
