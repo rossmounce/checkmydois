@@ -5,7 +5,7 @@
 #install.packages("httr")
 #setwd("/home/ross/workspace/checkmydois")
 library(rorcid)
-library(dplyr)
+library(dplyr, warn.conflicts=FALSE)
 library(httr)
 
 #Put your ORCID ID below
