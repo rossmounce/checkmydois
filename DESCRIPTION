@@ -16,5 +16,6 @@ Imports:
   httr,
   dplyr,
   rorcid,
-  readr
+  readr,
+  tidyr
 LazyData: true
