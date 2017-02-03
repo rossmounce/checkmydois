@@ -3,8 +3,21 @@
 # Load magrittr pipe
 `%>%` = dplyr::`%>%`
 
+# Get user's ORCID identifier
+command_args = commandArgs(trailingOnly = TRUE)
+if (length(command_args) > 0) {
+  # If command arguments were passed, assume first argument is orcid_id
+  orcid_id = command_args[1]
+} else {
+  # If no argument, look for the system variable ORCID_ID
+  orcid_id = Sys.getenv('ORCID_ID', unset = NA)
+}
+if (is.na(orcid_id)) {
+  stop("orcid_id is not set. Cannot continue with missing orcid_id.")
+}
+print(paste0('orcid_id set to ', orcid_id))
+
 # Put your ORCID ID below
-orcid_id = "0000-0002-3520-2046"
 orcid_data = rorcid::orcid_id(orcid_id)
 
 get_status = function(url) {
