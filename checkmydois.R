@@ -40,6 +40,7 @@ work_df = works$data %>%
     journal = `journal-title.value`,
     year = `publication-date.year.value`
     ) %>%
+  dplyr::mutate(doi = tolower(doi)) %>%
   dplyr::distinct(doi, .keep_all=TRUE) %>%
   dplyr::arrange(doi) %>%
   dplyr::mutate(url = paste0('https://doi.org/', doi)) %>%
