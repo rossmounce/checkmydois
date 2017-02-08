@@ -3,4 +3,7 @@
 language: r
 cache: packages
 sudo: false
-script: "Rscript checkmydois.R"
+env:
+  matrix:
+    - ORCID_ID="0000-0002-3520-2046"
+script: Rscript checkmydois.R

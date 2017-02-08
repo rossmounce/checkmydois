@@ -1,42 +1,56 @@
 #!/usr/bin/env Rscript
 
-#install.packages("rorcid")
-#install.packages("dplyr")
-#install.packages("httr")
-#setwd("/home/ross/workspace/checkmydois")
-library(rorcid)
-library(dplyr, warn.conflicts=FALSE)
-library(httr)
+# Load magrittr pipe
+`%>%` = dplyr::`%>%`
 
-#Put your ORCID ID below
-your.ORCID.ID <- "0000-0002-3520-2046"
-
-#This gets your list of works with identifiers from ORCID
-#Thanks to Scott Chamberlain for this step https://github.com/ropensci/rorcid/issues/31
-out <- works(orcid_id(your.ORCID.ID))
-ids <- dplyr::bind_rows(Filter(
-  Negate(is.null),
-  out$data$`work-external-identifiers.work-external-identifier`
-))
-doisonly <- ids[ids$`work-external-identifier-type` == "DOI", ]
-doisonly$`work-external-identifier-id.value` <- gsub("^","http://doi.org/",doisonly$`work-external-identifier-id.value`)
-doisonly$`work-external-identifier-id.value` <- gsub("DOI: ","",doisonly$`work-external-identifier-id.value`)
-uniquedois <- unique(doisonly$`work-external-identifier-id.value`)
-uniquedois
-#Write out a list of DOIs for all your ORCID registered works
-write.table(uniquedois,file="mydois.txt",row.names=F,col.names=F,quote=F)
-
-#loop through your DOIs to check the HTTP status message with a simple for loop
-#a better R coder probably wouldn't use a for loop here...
-#rm(vec)
-vec <- vector("list",length(uniquedois))
-for (doi in (seq(1,length(uniquedois)))){
-  vec[doi] <- http_status(GET(uniquedois[doi], user_agent("Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.0; Trident/5.0; Trident/5.0)")))$message
+# Get user's ORCID identifier
+command_args = commandArgs(trailingOnly = TRUE)
+if (length(command_args) > 0) {
+  # If command arguments were passed, assume first argument is orcid_id
+  orcid_id = command_args[1]
+} else {
+  # If no argument, look for the system variable ORCID_ID
+  orcid_id = Sys.getenv('ORCID_ID', unset = NA)
 }
-#save the HTTP status messages for all your works with DOIs
-table <- data.frame(matrix(unlist(vec)),uniquedois)
-table
-names(table)[1] <- "HTTP.Status"
-names(table)[2] <- "DOI"
-datestamp <- paste(format(Sys.time(), "%Y-%m-%d-%I-%p"), "csv", sep = ".")
-write.csv(table,file=datestamp,row.names = F)
+if (is.na(orcid_id)) {
+  stop("orcid_id is not set. Cannot continue with missing orcid_id.")
+}
+print(paste0('orcid_id set to ', orcid_id))
+
+# Retreive ORCID data
+orcid_data = rorcid::orcid_id(orcid_id)
+works = rorcid::works(orcid_data)
+
+get_status = function(url) {
+  # Get the HTTP reponse status of a URL
+  agent = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.0; Trident/5.0; Trident/5.0)"
+  agent = httr::user_agent(agent)
+  response = httr::GET(url, agent)
+  status = httr::http_status(response)
+  return(status$message)
+}
+
+# Extract a data_frame where each row is a work
+work_df = works$data %>%
+  dplyr::filter(! sapply(`work-external-identifiers.work-external-identifier`, is.null)) %>%
+  tidyr::unnest(`work-external-identifiers.work-external-identifier`) %>%
+  dplyr::filter(`work-external-identifier-type` == 'DOI') %>%
+  dplyr::rename(
+    doi = `work-external-identifier-id.value`,
+    journal = `journal-title.value`,
+    year = `publication-date.year.value`
+    ) %>%
+  dplyr::mutate(doi = tolower(doi)) %>%
+  dplyr::distinct(doi, .keep_all=TRUE) %>%
+  dplyr::arrange(doi) %>%
+  dplyr::mutate(url = paste0('https://doi.org/', doi)) %>%
+  dplyr::rowwise() %>%
+  dplyr::mutate(status = get_status(url)) %>%
+  dplyr::select(url, status, journal, year)
+
+# Export work_df to TSV
+iso_timestamp = strftime(as.POSIXlt(Sys.time(), "UTC"), "%Y-%m-%dT%H:%M:%S")
+print(iso_timestamp)
+
+path = file.path('output', 'works.tsv')
+readr::write_tsv(work_df, path, na='')

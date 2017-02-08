@@ -11,9 +11,3 @@
 
 #Ignore these hidden files from Mac OS X
 .DS_Store
-
-#The script will output a report file:
-mydois.txt
-
-#The script will output date-stamped report files:
-*.csv
